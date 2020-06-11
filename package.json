@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/felipesouza91/clean-api-mango/issues"
   },
-  "homepage": "https://github.com/felipesouza91/clean-api-mango#readme"
+  "homepage": "https://github.com/felipesouza91/clean-api-mango#readme",
+  "devDependencies": {
+    "standard": "^14.3.4"
+  }
 }
