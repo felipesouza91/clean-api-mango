@@ -6,9 +6,16 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/felipesouza91/clean-api-mango.git"
+  "lint-staged": {
+    "*.js": [
+      "standard --fix",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   },
   "keywords": [],
   "author": "",
@@ -17,7 +24,13 @@
     "url": "https://github.com/felipesouza91/clean-api-mango/issues"
   },
   "homepage": "https://github.com/felipesouza91/clean-api-mango#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/felipesouza91/clean-api-mango.git"
+  },
   "devDependencies": {
+    "husky": "^4.2.5",
+    "lint-staged": "^10.2.9",
     "standard": "^14.3.4"
   }
 }
