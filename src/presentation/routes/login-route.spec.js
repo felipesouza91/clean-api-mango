@@ -1,5 +1,6 @@
 const LoginRouter = require('./login-router.js')
-const { InvalidParamError, MissingParamError, ServerError, UnauthorizeError } = require('../errors')
+const { ServerError, UnauthorizeError } = require('../errors')
+const { InvalidParamError, MissingParamError } = require('../../utils/erros')
 
 const makeSut = () => {
   const authUseCaseSpy = makeAuthUseCase()
