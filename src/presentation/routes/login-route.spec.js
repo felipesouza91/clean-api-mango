@@ -6,10 +6,22 @@ const InvalidParamError = require('../helpers/invalid-param-error.js')
 
 const makeSut = () => {
   const authUseCaseSpy = makeAuthUseCase()
-  const sut = new LoginRouter(authUseCaseSpy)
+  const emailValidatorSpy = makeEmailValidator()
+  const sut = new LoginRouter(authUseCaseSpy, emailValidatorSpy)
   return {
-    sut, authUseCaseSpy
+    sut, authUseCaseSpy, emailValidatorSpy
   }
+}
+
+const makeEmailValidator = () => {
+  class EmailValidatorSpy {
+    isValid (email) {
+      return this.isEmailValid
+    }
+  }
+  const emailValidatorSpy = new EmailValidatorSpy()
+  emailValidatorSpy.isEmailValid = true
+  return emailValidatorSpy
 }
 
 const makeAuthUseCase = () => {
@@ -53,7 +65,7 @@ describe('Login Router', () => {
     const { sut } = makeSut()
     const httpRequest = {
       body: {
-        email: 'mypasswor@gmail.com'
+        email: 'anymail@gmail.com'
       }
     }
     const httpResponse = await sut.route(httpRequest)
@@ -62,11 +74,12 @@ describe('Login Router', () => {
   })
 
   test('Should return 400 if an invalid email is provided', async () => {
-    const { sut } = makeSut()
+    const { sut, emailValidatorSpy } = makeSut()
+    emailValidatorSpy.isEmailValid = false
     const httpRequest = {
       body: {
         email: 'invalidemail',
-        passowrd: 'passwords'
+        password: 'passwords'
       }
     }
     const httpResponse = await sut.route(httpRequest)
