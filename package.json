@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest --noStackTrace --silent --passWithNoTests —no-cache",
+    "test": "jest --noStackTrace --silent --passWithNoTests -—no-cache",
     "test:unit": "npm  test -- --watch -c jest-unit-config.js ",
     "test:integration": "npm test -- -c --watch jest-integration-config.js",
     "test:staged": "npm test -- --findRelatedTests",
