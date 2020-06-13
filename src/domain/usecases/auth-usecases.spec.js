@@ -2,6 +2,12 @@ const { MissingParamError } = require('../../utils/erros')
 const AuthUseCase = require('./auth-usecase')
 
 describe('Auth UseCase', () => {
+  class EncrypeterSpy {
+    async compare (password, hashedPassword) {
+      this.password = password
+      this.hashedPassword = hashedPassword
+    }
+  }
   const makeSut = () => {
     class LoadUserByEmailRespositorySpy {
       async load (email) {
@@ -11,10 +17,13 @@ describe('Auth UseCase', () => {
     }
 
     const loadUserByEmailRespositorySpy = new LoadUserByEmailRespositorySpy()
-    loadUserByEmailRespositorySpy.user = {}
-    const sut = new AuthUseCase(loadUserByEmailRespositorySpy)
+    loadUserByEmailRespositorySpy.user = {
+      password: 'hashed_password'
+    }
+    const encrypeterSpy = new EncrypeterSpy()
+    const sut = new AuthUseCase(loadUserByEmailRespositorySpy, encrypeterSpy)
     return {
-      sut, loadUserByEmailRespositorySpy
+      sut, loadUserByEmailRespositorySpy, encrypeterSpy
     }
   }
   test('should throw if no e-mail is provided', async () => {
@@ -59,10 +68,10 @@ describe('Auth UseCase', () => {
     const acessToken = await sut.auth('valid@email.com', 'invalid_password')
     expect(acessToken).toBeNull()
   })
-  /* test('should call Encrypter with correct values', async () => {
+  test('should call Encrypter with correct values', async () => {
     const { sut, loadUserByEmailRespositorySpy, encrypeterSpy } = makeSut()
     await sut.auth('valid@email.com', 'any_password')
-    //expect(encrypeterSpy.password).toBeNull('any_password')
-    expect(encrypeterSpy.hashed_password).toBeNull(loadUserByEmailRespositorySpy.user.password)
-  }) */
+    expect(encrypeterSpy.password).toBe('any_password')
+    expect(encrypeterSpy.hashedPassword).toBe(loadUserByEmailRespositorySpy.user.password)
+  })
 })
