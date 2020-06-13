@@ -16,6 +16,7 @@ const makeSut = () => {
 const makeEmailValidator = () => {
   class EmailValidatorSpy {
     isValid (email) {
+      this.email = email
       return this.isEmailValid
     }
   }
@@ -46,6 +47,16 @@ const makeAuthUseCaseWithError = () => {
   return {
     sut, authUseCaseSpy
   }
+}
+
+const makeEmailValidatorWithError = () => {
+  class EmailValidatorSpy {
+    isValid (email) {
+      throw new Error()
+    }
+  }
+  const emailValidatorSpy = new EmailValidatorSpy()
+  return emailValidatorSpy
 }
 
 describe('Login Router', () => {
@@ -113,6 +124,19 @@ describe('Login Router', () => {
     expect(authUseCaseSpy.email).toBe(httpRequest.body.email)
     expect(authUseCaseSpy.password).toBe(httpRequest.body.password)
   })
+
+  test('Should call EmailValidator with corret params', async () => {
+    const { sut, emailValidatorSpy } = makeSut()
+    const httpRequest = {
+      body: {
+        password: 'mypassword',
+        email: 'teste@teste.com.br'
+      }
+    }
+    await sut.route(httpRequest)
+    expect(emailValidatorSpy.email).toBe(httpRequest.body.email)
+  })
+
   test('Should return 401 when invalid credentials are provided', async () => {
     const { sut, authUseCaseSpy } = makeSut()
     authUseCaseSpy.accessToken = null
@@ -167,6 +191,22 @@ describe('Login Router', () => {
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
+
+  test('Should return 500 if no EmailValidator throws', async () => {
+    const autUseCaseSpy = makeAuthUseCase()
+    const emailValidatorSpy = makeEmailValidatorWithError()
+    const sut = new LoginRouter(autUseCaseSpy, emailValidatorSpy)
+    const httpRequest = {
+      body: {
+        password: 'any',
+        email: 'any@mail.com.br'
+      }
+    }
+    const httpResponse = await sut.route(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
+  })
+
   test('Should return 500 if no httpResquest is provider', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.route()
