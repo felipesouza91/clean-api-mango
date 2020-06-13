@@ -9,6 +9,7 @@ describe('Auth UseCase', () => {
         return this.user
       }
     }
+
     const loadUserByEmailRespositorySpy = new LoadUserByEmailRespositorySpy()
     loadUserByEmailRespositorySpy.user = {}
     const sut = new AuthUseCase(loadUserByEmailRespositorySpy)
@@ -58,4 +59,10 @@ describe('Auth UseCase', () => {
     const acessToken = await sut.auth('valid@email.com', 'invalid_password')
     expect(acessToken).toBeNull()
   })
+  /* test('should call Encrypter with correct values', async () => {
+    const { sut, loadUserByEmailRespositorySpy, encrypeterSpy } = makeSut()
+    await sut.auth('valid@email.com', 'any_password')
+    //expect(encrypeterSpy.password).toBeNull('any_password')
+    expect(encrypeterSpy.hashed_password).toBeNull(loadUserByEmailRespositorySpy.user.password)
+  }) */
 })
