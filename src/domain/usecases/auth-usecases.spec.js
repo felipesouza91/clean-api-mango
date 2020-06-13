@@ -17,21 +17,6 @@ class AuthUseCase {
 
 describe('Auth UseCase', () => {
   const makeSut = () => {
-    return new AuthUseCase()
-  }
-  test('should throw if no e-mail is provided', async () => {
-    const sut = makeSut()
-    const promise = sut.auth()
-    await expect(promise).rejects.toThrow(new MissingParamError('email'))
-  })
-
-  test('should throw if no password is provided', async () => {
-    const sut = makeSut()
-    const promise = sut.auth('email@email.com')
-    await expect(promise).rejects.toThrow(new MissingParamError('password'))
-  })
-
-  test('should call LoadUserByEmailRespository with correct email', async () => {
     class LoadUserByEmailRespositorySpy {
       async load (email) {
         this.email = email
@@ -39,6 +24,24 @@ describe('Auth UseCase', () => {
     }
     const loadUserByEmailRespositorySpy = new LoadUserByEmailRespositorySpy()
     const sut = new AuthUseCase(loadUserByEmailRespositorySpy)
+    return {
+      sut, loadUserByEmailRespositorySpy
+    }
+  }
+  test('should throw if no e-mail is provided', async () => {
+    const { sut } = makeSut()
+    const promise = sut.auth()
+    await expect(promise).rejects.toThrow(new MissingParamError('email'))
+  })
+
+  test('should throw if no password is provided', async () => {
+    const { sut } = makeSut()
+    const promise = sut.auth('email@email.com')
+    await expect(promise).rejects.toThrow(new MissingParamError('password'))
+  })
+
+  test('should call LoadUserByEmailRespository with correct email', async () => {
+    const { sut, loadUserByEmailRespositorySpy } = makeSut()
     await sut.auth('email@email.com', 'password')
     expect(loadUserByEmailRespositorySpy.email).toBe('email@email.com')
   })
