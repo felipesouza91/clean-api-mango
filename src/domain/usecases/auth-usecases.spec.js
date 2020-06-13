@@ -1,4 +1,4 @@
-const { MissingParamError, InvalidParamError } = require('../../utils/erros')
+const { MissingParamError } = require('../../utils/erros')
 const AuthUseCase = require('./auth-usecase')
 
 describe('Auth UseCase', () => {
@@ -6,9 +6,11 @@ describe('Auth UseCase', () => {
     class LoadUserByEmailRespositorySpy {
       async load (email) {
         this.email = email
+        return this.user
       }
     }
     const loadUserByEmailRespositorySpy = new LoadUserByEmailRespositorySpy()
+    loadUserByEmailRespositorySpy.user = {}
     const sut = new AuthUseCase(loadUserByEmailRespositorySpy)
     return {
       sut, loadUserByEmailRespositorySpy
@@ -35,17 +37,25 @@ describe('Auth UseCase', () => {
   test('should throw if no loadUserByEmailRespository is provider', async () => {
     const sut = new AuthUseCase()
     const promise = sut.auth('email@email.com', 'password')
-    await expect(promise).rejects.toThrow(new MissingParamError('loadUserByEmailRespository'))
+    await expect(promise).rejects.toThrow()
   })
 
   test('should throw if loadUserByEmailRespository has no load method', async () => {
     const sut = new AuthUseCase({})
     const promise = sut.auth('email@email.com', 'password')
-    await expect(promise).rejects.toThrow(new InvalidParamError('loadUserByEmailRespository'))
+    await expect(promise).rejects.toThrow()
   })
-  test('should return null if loadUserByEmailRespository returns null', async () => {
-    const { sut } = makeSut()
+
+  test('should return null if a invalid email is provided', async () => {
+    const { sut, loadUserByEmailRespositorySpy } = makeSut()
+    loadUserByEmailRespositorySpy.user = null
     const acessToken = await sut.auth('invalid_email@email.com', 'password')
-    expect(acessToken).toBe(null)
+    expect(acessToken).toBeNull()
+  }
+  )
+  test('should return null if a invalid password is provided', async () => {
+    const { sut } = makeSut()
+    const acessToken = await sut.auth('valid@email.com', 'invalid_password')
+    expect(acessToken).toBeNull()
   })
 })
