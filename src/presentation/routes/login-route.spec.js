@@ -1,8 +1,5 @@
 const LoginRouter = require('./login-router.js')
-const MissingParamError = require('../helpers/missing-param-error.js')
-const UnauthorizeError = require('../helpers/unauthorize-error.js')
-const ServerError = require('../helpers/server-error.js')
-const InvalidParamError = require('../helpers/invalid-param-error.js')
+const { InvalidParamError, MissingParamError, ServerError, UnauthorizeError } = require('../errors')
 
 const makeSut = () => {
   const authUseCaseSpy = makeAuthUseCase()
@@ -198,7 +195,7 @@ describe('Login Router', () => {
     const sut = new LoginRouter(autUseCaseSpy, emailValidatorSpy)
     const httpRequest = {
       body: {
-        password: 'any',
+        password: 'anyd',
         email: 'any@mail.com.br'
       }
     }
