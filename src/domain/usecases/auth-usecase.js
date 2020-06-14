@@ -14,14 +14,11 @@ module.exports = class AuthUseCase {
       throw new MissingParamError('password')
     }
     const user = await this.loadUserByEmailRespository.load(email)
-    if (!user) {
-      return null
+    const isValid = user && await this.encrypeter.compare(password, user.password)
+    if (isValid) {
+      const accessToke = await this.tokenGenerater.generate(user.id)
+      return accessToke
     }
-    const isValid = await this.encrypeter.compare(password, user.password)
-    if (!isValid) {
-      return null
-    }
-    const accessToke = await this.tokenGenerater.generate(user.id)
-    return accessToke
+    return null
   }
 }
