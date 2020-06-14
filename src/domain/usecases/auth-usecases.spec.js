@@ -1,31 +1,43 @@
 const { MissingParamError } = require('../../utils/erros')
 const AuthUseCase = require('./auth-usecase')
 
-describe('Auth UseCase', () => {
+const makeEncryper = () => {
   class EncrypeterSpy {
     async compare (password, hashedPassword) {
       this.password = password
       this.hashedPassword = hashedPassword
+      return this.isValid
     }
   }
-  const makeSut = () => {
-    class LoadUserByEmailRespositorySpy {
-      async load (email) {
-        this.email = email
-        return this.user
-      }
-    }
+  const encrypeterSpy = new EncrypeterSpy()
+  encrypeterSpy.isValid = true
+  return encrypeterSpy
+}
 
-    const loadUserByEmailRespositorySpy = new LoadUserByEmailRespositorySpy()
-    loadUserByEmailRespositorySpy.user = {
-      password: 'hashed_password'
-    }
-    const encrypeterSpy = new EncrypeterSpy()
-    const sut = new AuthUseCase(loadUserByEmailRespositorySpy, encrypeterSpy)
-    return {
-      sut, loadUserByEmailRespositorySpy, encrypeterSpy
+const makeLoadUserByEmailRespositorySpy = () => {
+  class LoadUserByEmailRespositorySpy {
+    async load (email) {
+      this.email = email
+      return this.user
     }
   }
+  const loadUserByEmailRespositorySpy = new LoadUserByEmailRespositorySpy()
+  loadUserByEmailRespositorySpy.user = {
+    password: 'hashed_password'
+  }
+  return loadUserByEmailRespositorySpy
+}
+
+const makeSut = () => {
+  const encrypeterSpy = makeEncryper()
+  const loadUserByEmailRespositorySpy = makeLoadUserByEmailRespositorySpy()
+  const sut = new AuthUseCase(loadUserByEmailRespositorySpy, encrypeterSpy)
+  return {
+    sut, loadUserByEmailRespositorySpy, encrypeterSpy
+  }
+}
+
+describe('Auth UseCase', () => {
   test('should throw if no e-mail is provided', async () => {
     const { sut } = makeSut()
     const promise = sut.auth()
@@ -64,7 +76,8 @@ describe('Auth UseCase', () => {
   }
   )
   test('should return null if a invalid password is provided', async () => {
-    const { sut } = makeSut()
+    const { sut, encrypeterSpy } = makeSut()
+    encrypeterSpy.isValid = false
     const acessToken = await sut.auth('valid@email.com', 'invalid_password')
     expect(acessToken).toBeNull()
   })
