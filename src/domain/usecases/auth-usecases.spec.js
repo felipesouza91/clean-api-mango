@@ -14,6 +14,24 @@ const makeEncryper = () => {
   return encrypeterSpy
 }
 
+const makeEncryperWithError = () => {
+  class EncrypeterSpy {
+    async compare (password, hashedPassword) {
+      throw new Error()
+    }
+  }
+  return new EncrypeterSpy()
+}
+
+const makeLoadUserByEmailRepositoryWithError = () => {
+  class LoadUserByEmailRespositorySpy {
+    async load () {
+      throw new Error()
+    }
+  }
+  return new LoadUserByEmailRespositorySpy()
+}
+
 const makeTokenGeneratorSpy = () => {
   class TokenGeneratorSpy {
     async generate (userId) {
@@ -24,6 +42,15 @@ const makeTokenGeneratorSpy = () => {
   const tokenGenerator = new TokenGeneratorSpy()
   tokenGenerator.acessToken = 'any_token'
   return tokenGenerator
+}
+
+const makeTokenGeneratorWithError = () => {
+  class TokenGeneratorSpy {
+    async generate (userId) {
+      throw new Error()
+    }
+  }
+  return new TokenGeneratorSpy()
 }
 
 const makeLoadUserByEmailRespositorySpy = () => {
@@ -126,6 +153,29 @@ describe('Auth UseCase', () => {
         loadUserByEmailRespository,
         encrypeter,
         tokenGenerator: invalid
+      })
+    )
+    for (const sut of suts) {
+      const promise = sut.auth('email@email.com', 'password')
+      await expect(promise).rejects.toThrow()
+    }
+  })
+
+  test('should throw if dependency throws', async () => {
+    const loadUserByEmailRespository = makeLoadUserByEmailRespositorySpy()
+    const encrypeter = makeEncryper()
+    const suts = [].concat(
+      new AuthUseCase({
+        loadUserByEmailRespository: makeLoadUserByEmailRepositoryWithError()
+      }),
+      new AuthUseCase({
+        loadUserByEmailRespository,
+        encrypeter: makeEncryperWithError()
+      }),
+      new AuthUseCase({
+        loadUserByEmailRespository,
+        encrypeter,
+        tokenGenerator: makeTokenGeneratorWithError()
       })
     )
     for (const sut of suts) {
