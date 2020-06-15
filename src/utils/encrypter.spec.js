@@ -1,10 +1,5 @@
 const bcrypt = require('bcrypt')
-class Encrypter {
-  async compare (value, hash) {
-    const isValid = await bcrypt.compare(value, hash)
-    return isValid
-  }
-}
+const Encrypter = require('./encrypter')
 
 const makeSut = () => {
   const sut = new Encrypter()
@@ -24,6 +19,12 @@ describe('Encrypter tests', () => {
     bcrypt.isValid = false
     const isTrue = await sut.compare('any_value', 'hashed_value')
     expect(isTrue).toBe(false)
+  })
+  test('Should call bcrypt with corrects values', async () => {
+    const { sut } = makeSut()
+    await sut.compare('any_value', 'hashed_value')
+    expect(bcrypt.value).toBe('any_value')
+    expect(bcrypt.hash).toBe('hashed_value')
   })
   test('Should call bcrypt with corrects values', async () => {
     const { sut } = makeSut()
