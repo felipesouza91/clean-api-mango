@@ -9,4 +9,14 @@ describe('Content Type Middleware', () => {
       .get('/content_type')
       .expect('content-type', /json/)
   })
+
+  test('Should return <xml></xml> content type as default', async () => {
+    app.get('/content_type_xml', (req, res) => {
+      res.type('xml')
+      return res.send('')
+    })
+    await request(app)
+      .get('/content_type_xml')
+      .expect('content-type', /xml/)
+  })
 })
