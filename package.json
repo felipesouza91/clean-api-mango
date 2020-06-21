@@ -7,7 +7,7 @@
     "test": "jest --noStackTrace --silent --passWithNoTests -—no-cache",
     "test:unit": "npm  test -- --watch -c jest-unit-config.js ",
     "test:integration": "npm test -- -c --watch jest-integration-config.js",
-    "test:staged": "npm test -- --findRelatedTests",
+    "test:staged": "npm test -- --findRelatedTests --silent",
     "test:ci": "npm test -- --coverage"
   },
   "standard": {
@@ -27,6 +27,8 @@
     "url": "git+https://github.com/felipesouza91/clean-api-mango.git"
   },
   "devDependencies": {
+    "@shelf/jest-mongodb": "^1.1.5",
+    "@types/jest": "^26.0.0",
     "husky": "^4.2.5",
     "jest": "^26.0.1",
     "lint-staged": "^10.2.9",
@@ -35,6 +37,7 @@
   "dependencies": {
     "bcrypt": "^5.0.0",
     "jsonwebtoken": "^8.5.1",
+    "mongodb": "^3.5.9",
     "validator": "^13.1.1"
   }
 }
