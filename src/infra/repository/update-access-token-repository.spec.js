@@ -36,6 +36,7 @@ describe('UpdateAccessToken Repository', () => {
   afterAll(async () => {
     await MongoHelp.disconnect()
   })
+
   test('Should update then user with the given acessToken', async () => {
     const { sut, userModel } = makeSut()
     const fakeUser = await userModel.insertOne({
@@ -46,5 +47,17 @@ describe('UpdateAccessToken Repository', () => {
     await sut.update(fakeUser.ops[0]._id, 'validToken')
     const updatedFakeUser = await userModel.findOne({ _id: fakeUser.ops[0]._id })
     expect(updatedFakeUser.accessToken).toBe('validToken')
+  })
+
+  test('Should throw if no UserModel is provided', async () => {
+    const sut = new UpdateAccessTokenRepository()
+    const { userModel } = makeSut()
+    const fakeUser = await userModel.insertOne({
+      email: 'valid_email@email.com',
+      password: 'hashard_password',
+      name: 'Any name'
+    })
+    const promise = sut.update(fakeUser.ops[0]._id, 'validToken')
+    await expect(promise).rejects.toThrow()
   })
 })
