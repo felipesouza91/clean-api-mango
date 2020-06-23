@@ -149,34 +149,6 @@ describe('Login Router', () => {
     expect(httpResponse.body).toEqual(new UnauthorizeError())
   })
 
-  test('Should return 500 if no AuthUseCase throws', async () => {
-    const { sut } = makeAuthUseCaseWithError()
-    const httpRequest = {
-      body: {
-        password: 'any',
-        email: 'any@mail.com.br'
-      }
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(500)
-    expect(httpResponse.body).toEqual(new ServerError())
-  })
-
-  test('Should return 500 if no EmailValidator throws', async () => {
-    const autUseCaseSpy = makeAuthUseCase()
-    const emailValidatorSpy = makeEmailValidatorWithError()
-    const sut = new LoginRouter(autUseCaseSpy, emailValidatorSpy)
-    const httpRequest = {
-      body: {
-        password: 'anyd',
-        email: 'any@mail.com.br'
-      }
-    }
-    const httpResponse = await sut.route(httpRequest)
-    expect(httpResponse.statusCode).toBe(500)
-    expect(httpResponse.body).toEqual(new ServerError())
-  })
-
   test('Should return 500 if no httpResquest is provider', async () => {
     const { sut } = makeSut()
     const httpResponse = await sut.route()
@@ -191,7 +163,7 @@ describe('Login Router', () => {
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
-  test('should throw if dependency throws', async () => {
+  test('should throw if dependency are provided', async () => {
     const invalid = {}
     const authUseCase = makeAuthUseCase()
     const suts = [].concat(
@@ -208,6 +180,30 @@ describe('Login Router', () => {
         emailValidator: {}
       })
 
+    )
+    for (const sut of suts) {
+      const httpRequest = {
+        body: {
+          password: 'any',
+          email: 'any@mail.com.br'
+        }
+      }
+      const httpResponse = await sut.route(httpRequest)
+      expect(httpResponse.statusCode).toBe(500)
+      expect(httpResponse.body).toEqual(new ServerError())
+    }
+  })
+
+  test('should throw if dependency throws', async () => {
+    const authUseCase = makeAuthUseCase()
+    const suts = [].concat(
+      new LoginRouter({
+        authUseCase: makeAuthUseCaseWithError()
+      }),
+      new LoginRouter({
+        authUseCase,
+        emailValidator: makeEmailValidatorWithError()
+      })
     )
     for (const sut of suts) {
       const httpRequest = {
