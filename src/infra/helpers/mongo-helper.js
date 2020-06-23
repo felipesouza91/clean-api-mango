@@ -1,4 +1,5 @@
 const { MongoClient } = require('mongodb')
+const { MissingParamError } = require('../../utils/erros')
 module.exports = {
   async connect (uri, dbName) {
     this.uri = uri
@@ -13,11 +14,14 @@ module.exports = {
     this.db = null
   },
 
-  async getDb () {
+  async getCollection (collectionName) {
+    if (!collectionName) {
+      throw new MissingParamError('collectionName')
+    }
     if (!this.client || !this.client.isConnected()) {
       await this.connect(this.uri, this.dbName)
     }
-    return this.db
+    return this.db.collection(collectionName)
   }
 
 }

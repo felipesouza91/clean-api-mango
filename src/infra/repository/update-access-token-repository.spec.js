@@ -4,7 +4,7 @@ const { MissingParamError } = require('../../utils/erros')
 let db
 
 const makeSut = () => {
-  const userModel = db.collection('users')
+  const userModel = db
   const sut = new UpdateAccessTokenRepository()
   return { sut, userModel }
 }
@@ -22,11 +22,11 @@ const makeFakeUser = async () => {
 describe('UpdateAccessToken Repository', () => {
   beforeAll(async () => {
     await MongoHelp.connect(process.env.MONGO_URL)
-    db = await MongoHelp.getDb()
+    db = await MongoHelp.getCollection('users')
   })
 
   beforeEach(async () => {
-    await db.collection('users').deleteMany()
+    await db.deleteMany()
   })
 
   afterAll(async () => {
