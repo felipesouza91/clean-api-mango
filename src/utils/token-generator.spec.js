@@ -1,4 +1,13 @@
-const Jwt = require('jsonwebtoken')
+jest.mock('jsonwebtoken', () => ({
+  token: 'any_token',
+
+  sign (payload, secret) {
+    this.payload = payload
+    this.secret = secret
+    return this.token
+  }
+}))
+const jwt = require('jsonwebtoken')
 const { MissingParamError } = require('./erros')
 const TokenGenerator = require('./token-generator')
 
@@ -9,7 +18,7 @@ const makeSut = () => {
 describe('Token Generator', () => {
   test('Should return null if JWT return null', async () => {
     const sut = makeSut()
-    Jwt.token = null
+    jwt.token = null
     const token = await sut.generate('any_id')
     expect(token).toBeNull()
   })
@@ -17,14 +26,16 @@ describe('Token Generator', () => {
   test('Should return a token if Jwt return token', async () => {
     const sut = makeSut()
     const token = await sut.generate('any_id')
-    expect(token).toBe(Jwt.token)
+    expect(token).toBe(jwt.token)
   })
 
-  test('Should call JWT with corret values', async () => {
+  test('Should call JWT with correct values', async () => {
     const sut = makeSut()
     await sut.generate('any_id')
-    expect(Jwt.id).toBe('any_id')
-    expect(Jwt.secret).toBe(sut.secret)
+    expect(jwt.payload).toEqual({
+      _id: 'any_id'
+    })
+    expect(jwt.secret).toBe(sut.secret)
   })
 
   test('Should throw if no secret are provide', async () => {

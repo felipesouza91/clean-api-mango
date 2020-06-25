@@ -9,13 +9,20 @@ const TokenGenerator = require('../../utils/token-generator')
 
 module.exports = class LoginRouterComposer {
   static compose () {
-    const loadUserByEmailRepository = new LoadUserByEmailRepository()
     const tokenGenerator = new TokenGenerator(env.tokenSecret)
     const encrypeter = new Encrypter()
-    const loadUserByEmailRespositorys = new UpdateAccessTokenRepository()
-    const authUseCase = new AuthUseCase({ loadUserByEmailRepository, encrypeter, loadUserByEmailRespositorys, tokenGenerator })
+    const loadUserByEmailRepository = new LoadUserByEmailRepository()
+    const updateAccessTokenRepository = new UpdateAccessTokenRepository()
     const emailValidator = new EmailValidator()
-    const loginRouter = new LoginRouter({ authUseCase, emailValidator })
-    return loginRouter
+    const authUseCase = new AuthUseCase({
+      loadUserByEmailRepository,
+      updateAccessTokenRepository,
+      encrypeter,
+      tokenGenerator
+    })
+    return new LoginRouter({
+      authUseCase,
+      emailValidator
+    })
   }
 }
