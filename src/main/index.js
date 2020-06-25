@@ -3,7 +3,7 @@ const MongoHelper = require('../infra/helpers/mongo-helper')
 const env = require('./config/env')
 
 MongoHelper.connect(env.mongoUrl).then(() => {
-  app.listen(3333, () => {
+  app.listen(env.port, () => {
     console.log('Server is running')
   })
 }).catch(console.error)
