@@ -11,14 +11,14 @@ module.exports = class HttpResponse {
   static internalServerError () {
     return {
       statusCode: 500,
-      body: new ServerError()
+      body: { error: new ServerError().message }
     }
   }
 
   static unauthorizedError () {
     return {
       statusCode: 401,
-      body: new UnauthorizeError()
+      body: { error: new UnauthorizeError().message }
     }
   }
 
